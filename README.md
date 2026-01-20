@@ -29,6 +29,8 @@ Download the appropriate binary for your platform from the [Releases](https://gi
 
 ## Usage
 
+You can also [override `npm test`](TERMINAL_OVERRIDES.md) in your shell to use notfail automatically.
+
 ```bash
 # Run with default command (npm test -- --silent)
 notfail
