@@ -27,7 +27,17 @@ cargo install --path .
 
 Download the appropriate binary for your platform from the [Releases](https://github.com/yourusername/notfail/releases) page.
 
-## Usage
+## Usage with AI Agents (Claude Code, ACP)
+
+AI agents running commands through ACP (Agent Control Protocol) or similar non-interactive shells do not load shell configuration files like `~/.bashrc` or `~/.zshrc`. This means shell function overrides from [TERMINAL_OVERRIDES.md](TERMINAL_OVERRIDES.md) won't apply.
+
+To use `notfail` with AI agents, add instructions to your project's `CLAUDE.md` or agent configuration:
+
+```
+Use `notfail` instead of `npm test` to run tests. To override the command with arguments (e.g., to specify a specific test file), use `notfail -c "npm test --silent <args>"` and set a timeout of 300 seconds as the tests are long running.
+```
+
+## Usage in Terminal
 
 You can also [override `npm test`](TERMINAL_OVERRIDES.md) in your shell to use notfail automatically.
 
@@ -117,6 +127,7 @@ Primarily tested with:
 - Jest
 
 The failure detection patterns should work with most test runners that output standard pass/fail indicators.
+
 
 ## License
 
