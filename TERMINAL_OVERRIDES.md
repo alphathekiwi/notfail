@@ -14,6 +14,12 @@ function npm
         else
             notfail
         end
+    else if test (count $argv) -ge 2 -a "$argv[1]" = "run" -a "$argv[2]" = "test"
+        if test (count $argv) -gt 2
+            notfail -c "npm test "(string escape -- $argv[3..-1] | string join ' ')
+        else
+            notfail
+        end
     else
         command npm $argv
     end
@@ -37,7 +43,14 @@ npm() {
             notfail -c "npm test $*"
         else
             notfail
-        end
+        fi
+    elif [[ "$1" == "run" && "$2" == "test" ]]; then
+        if [[ $# -gt 2 ]]; then
+            shift 2
+            notfail -c "npm test $*"
+        else
+            notfail
+        fi
     else
         command npm "$@"
     fi
@@ -62,6 +75,13 @@ npm() {
         else
             notfail
         fi
+    elif [[ "$1" == "run" && "$2" == "test" ]]; then
+        if [[ $# -gt 2 ]]; then
+            shift 2
+            notfail -c "npm test $*"
+        else
+            notfail
+        fi
     else
         command npm "$@"
     fi
@@ -82,6 +102,13 @@ function npm {
     if ($args[0] -eq "test") {
         if ($args.Count -gt 1) {
             $testArgs = $args[1..($args.Count - 1)] -join ' '
+            & notfail -c "npm test $testArgs"
+        } else {
+            & notfail
+        }
+    } elseif ($args[0] -eq "run" -and $args[1] -eq "test") {
+        if ($args.Count -gt 2) {
+            $testArgs = $args[2..($args.Count - 1)] -join ' '
             & notfail -c "npm test $testArgs"
         } else {
             & notfail
