@@ -46,11 +46,6 @@ jobs:
             os: ubuntu-latest
             use-cross: true
 
-          # Windows x86_64
-          - target: x86_64-pc-windows-msvc
-            os: windows-latest
-            use-cross: false
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -81,17 +76,10 @@ jobs:
           target: ${{ matrix.target }}
           args: --release
 
-      - name: Prepare artifact (Unix)
-        if: runner.os != 'Windows'
+      - name: Prepare artifact
         run: |
           mkdir -p dist
           cp target/${{ matrix.target }}/release/notfail dist/notfail-${{ matrix.target }}
-
-      - name: Prepare artifact (Windows)
-        if: runner.os == 'Windows'
-        run: |
-          mkdir dist
-          cp target/${{ matrix.target }}/release/notfail.exe dist/notfail-${{ matrix.target }}.exe
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
