@@ -2,11 +2,8 @@ name: Build and Release
 
 on:
   push:
-    branches: [main]
     tags:
       - "v*"
-  pull_request:
-    branches: [main]
 
 env:
   CARGO_TERM_COLOR: always
@@ -22,35 +19,67 @@ jobs:
           # macOS ARM (Apple Silicon)
           - target: aarch64-apple-darwin
             os: macos-latest
+            use-cross: false
 
           # macOS Intel
           - target: x86_64-apple-darwin
             os: macos-latest
+            use-cross: false
 
           # Linux x86_64
           - target: x86_64-unknown-linux-gnu
             os: ubuntu-latest
+            use-cross: false
+
+          # Linux ARM64 (for Docker on Apple Silicon, AWS Graviton, Raspberry Pi, etc.)
+          - target: aarch64-unknown-linux-gnu
+            os: ubuntu-latest
+            use-cross: true
+
+          # Linux x86_64 musl (static binary)
+          - target: x86_64-unknown-linux-musl
+            os: ubuntu-latest
+            use-cross: true
+
+          # Linux ARM64 musl (static binary)
+          - target: aarch64-unknown-linux-musl
+            os: ubuntu-latest
+            use-cross: true
 
           # Windows x86_64
           - target: x86_64-pc-windows-msvc
             os: windows-latest
+            use-cross: false
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
+      # For targets that don't need cross-compilation
       - name: Install Rust toolchain
+        if: ${{ !matrix.use-cross }}
         uses: dtolnay/rust-toolchain@stable
         with:
           targets: ${{ matrix.target }}
 
       - name: Cache cargo registry and build
+        if: ${{ !matrix.use-cross }}
         uses: Swatinem/rust-cache@v2
         with:
           key: ${{ matrix.target }}
 
-      - name: Build
+      - name: Build (native)
+        if: ${{ !matrix.use-cross }}
         run: cargo build --release --target ${{ matrix.target }}
+
+      # For targets that need cross-compilation (Linux ARM64, musl targets)
+      - name: Build (cross)
+        if: ${{ matrix.use-cross }}
+        uses: houseabsolute/actions-rust-cross@v1
+        with:
+          command: build
+          target: ${{ matrix.target }}
+          args: --release
 
       - name: Prepare artifact (Unix)
         if: runner.os != 'Windows'
